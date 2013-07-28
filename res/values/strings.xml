@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Multi SMS</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_contact_selection">Contact Selection</string>
+    <string name="title_activity_message_editor">Multi SMS</string>
+    <string name="send_to">send to...</string>
+    <string name="message_hint">Insert text here</string>
+    <string name="send">Send to selected contacts</string>
+
+</resources>
