@@ -2,16 +2,13 @@ package com.hotmoka.multisms.contactSelection;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
-import com.hotmoka.asimov.tasks.DetachableAsyncTask;
 import com.hotmoka.asimov.tasks.TaskLauncherActivity;
 import com.hotmoka.multisms.R;
 
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -21,18 +18,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.app.ProgressDialog;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.database.Cursor;
 
 public class ContactSelectionActivity extends TaskLauncherActivity {
 
 	/* saved state */
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
-
-	private final static Contact[] noContacts = new Contact[0];
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +31,6 @@ public class ContactSelectionActivity extends TaskLauncherActivity {
 		setContentView(R.layout.activity_contact_selection);
 
 		recoverSavedState(savedInstanceState);
-
-		submit(new MyTask(this));
 	}
 
 	private void setAdaptor(Contact[] contacts) {
@@ -102,7 +90,7 @@ public class ContactSelectionActivity extends TaskLauncherActivity {
 	protected void onSaveInstanceState(Bundle instanceState) {
 		super.onSaveInstanceState(instanceState);
 
-		instanceState.putParcelableArray("selected", selectedContacts.toArray(noContacts));
+		instanceState.putParcelableArray("selected", selectedContacts.toArray(new Contact[selectedContacts.size()]));
 	}
 
 	private void recoverSavedState(Bundle savedInstanceState) {
@@ -116,7 +104,7 @@ public class ContactSelectionActivity extends TaskLauncherActivity {
 		private final String name;
 		private final String phone;
 	
-		private Contact(boolean isMobile, String name, String phone) {
+		public Contact(boolean isMobile, String name, String phone) {
 			this.isMobile = isMobile;
 			this.name = name;
 			this.phone = phone;
@@ -185,116 +173,5 @@ public class ContactSelectionActivity extends TaskLauncherActivity {
 				return new Contact[size];
 			}
 		};
-	}
-
-	private static class MyTask extends DetachableAsyncTask<ContactSelectionActivity, Void, Integer, Contact[]> {
-
-		private final ContentResolver contentResolver;
-
-		/**
-		 * The progress bar used to show the progress of the computation.
-		 */
-
-		private ProgressDialog progressBar;
-		private Cursor contactsCursor;
-		private int progress;
-
-		private MyTask(ContactSelectionActivity context) {
-			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_FOREGROUND);
-			//+ android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE);
-			this.contentResolver = context.getContentResolver();
-		}
-
-		@Override
-		protected void onAttach(ContactSelectionActivity context) {
-			super.onAttach(context);
-
-			progressBar = new ProgressDialog(context);
-			progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			progressBar.setIndeterminate(false);
-			progressBar.setMessage("Loading contacts");
-			progressBar.setProgress(progress);
-			if (contactsCursor != null)
-				progressBar.setMax(contactsCursor.getCount());
-			//progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progress_bar));
-			progressBar.setOnCancelListener(new OnCancelListener() {
-
-				@Override
-				public void onCancel(DialogInterface bar) {
-					// if the user cancels the progress bar (for instance through the back key)
-					// the task gets cancelled as well
-					cancel(true);
-				}
-			});
-
-			progressBar.show();
-		}
-
-		@Override
-		protected void onDetach() {
-			super.onDetach();
-
-			progressBar.dismiss();
-		}
-
-		@Override
-		protected Contact[] doInBackground(Void... arg0) {
-			contactsCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-			progressBar.setMax(contactsCursor.getCount());
-			Set<Contact> contacts = new TreeSet<Contact>();
-
-	        while (contactsCursor.moveToNext()) {
-	        	publishProgress(++progress);
-	        	addContactsFor(contactsCursor, contacts);
-	        }
-
-	        contactsCursor.close();
-
-	        return contacts.toArray(noContacts);
-		}
-
-		private void addContactsFor(Cursor contactsCursor, Set<Contact> contacts) {
-			String contactName = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-	        String contactID = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts._ID));
-
-	    	// iteriamo su tutti i numeri del contatto
-	    	Cursor numbers = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-	       		ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[] { contactID }, null);
-
-	    	if (numbers != null)
-	            while (numbers.moveToNext()) {
-	            	boolean isMobile = numbers.getInt(numbers.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)) == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
-	            	String contactPhone = numbers.getString(numbers.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-	            	contacts.add(new Contact(isMobile, contactName, contactPhone));
-	            }
-
-	    	numbers.close();
-		}
-
-		@Override
-		protected void onProgressUpdate(ContactSelectionActivity context, Integer... progress) {
-			progressBar.setProgress(progress[0]);
-		}
-
-		@Override
-		protected void onPostExecute(ContactSelectionActivity context, Contact[] result) {
-			progressBar.dismiss();
-			context.setAdaptor(result);
-		}
-
-		@Override
-		protected void onCancelled(ContactSelectionActivity context, Contact[] result) {
-			if (contactsCursor != null)
-				contactsCursor.close();
-			progressBar.dismiss();
-			context.setAdaptor(result);
-		}
-
-		@Override
-		protected void onCancelled(ContactSelectionActivity context) {
-			if (contactsCursor != null)
-				contactsCursor.close();
-			progressBar.dismiss();
-		}
 	}
 }
