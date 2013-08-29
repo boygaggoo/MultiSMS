@@ -3,8 +3,8 @@ package com.hotmoka.multisms.messageEditor;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.hotmoka.asimov.tasks.DetachableHandler;
-import com.hotmoka.asimov.tasks.TaskLauncherActivity;
+import com.hotmoka.asimov.app.DetachableHandler;
+import com.hotmoka.asimov.app.AsimovActivity;
 import com.hotmoka.multisms.R;
 import com.hotmoka.multisms.contactSelection.ContactSelectionActivity;
 import com.hotmoka.multisms.contactSelection.ContactSelectionActivity.Contact;
@@ -21,7 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class MessageEditorActivity extends TaskLauncherActivity {
+public class MessageEditorActivity extends AsimovActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

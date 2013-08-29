@@ -3,9 +3,9 @@ package com.hotmoka.multisms.contactSelection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hotmoka.asimov.tasks.TaskLauncherActivity;
 import com.hotmoka.multisms.R;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-public class ContactSelectionActivity extends TaskLauncherActivity {
+public class ContactSelectionActivity extends Activity {
 
 	/* saved state */
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
