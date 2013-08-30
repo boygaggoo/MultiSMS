@@ -2,10 +2,12 @@ package com.hotmoka.multisms.contactSelection;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
+import com.hotmoka.asimov.app.AsimovActivity;
+import com.hotmoka.asimov.app.State;
 import com.hotmoka.multisms.R;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -19,9 +21,15 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-public class ContactSelectionActivity extends Activity {
+public class ContactSelectionActivity extends AsimovActivity {
 
-	/* saved state */
+	/**
+	 * The token holding the contacts in the intent that started this activity.
+	 */
+
+	public final static String CONTACTS = "contacts";
+
+	@State
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
 
 	@Override
@@ -30,7 +38,18 @@ public class ContactSelectionActivity extends Activity {
 
 		setContentView(R.layout.activity_contact_selection);
 
-		recoverSavedState(savedInstanceState);
+		setAdaptor(getContactsFromIntent());
+	}
+
+	private Contact[] getContactsFromIntent() {
+		Set<Contact> contacts = new TreeSet<Contact>();
+		Parcelable[] extra = getIntent().getParcelableArrayExtra(CONTACTS);
+		if (extra != null)
+			for (Parcelable p: extra)
+				if (p instanceof Contact)
+					contacts.add((Contact) p);
+
+		return contacts.toArray(new Contact[contacts.size()]);
 	}
 
 	private void setAdaptor(Contact[] contacts) {
@@ -84,19 +103,6 @@ public class ContactSelectionActivity extends Activity {
 		};
 
 		((ListView) findViewById(R.id.list_of_contacts)).setAdapter(adapter);
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle instanceState) {
-		super.onSaveInstanceState(instanceState);
-
-		instanceState.putParcelableArray("selected", selectedContacts.toArray(new Contact[selectedContacts.size()]));
-	}
-
-	private void recoverSavedState(Bundle savedInstanceState) {
-		if (savedInstanceState != null)
-			for (Contact contact: (Contact[]) savedInstanceState.getParcelableArray("selected"))
-				selectedContacts.add(contact);
 	}
 
 	public static class Contact implements Comparable<Contact>, Parcelable {

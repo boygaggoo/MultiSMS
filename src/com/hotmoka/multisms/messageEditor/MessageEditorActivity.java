@@ -38,7 +38,6 @@ public class MessageEditorActivity extends AsimovActivity {
 			@Override
 			public void onClick(View v) {
 				submit(new ContactsFetcher(MessageEditorActivity.this));
-				//startActivity(new Intent(MessageEditorActivity.this, ContactSelectionActivity.class));
 			}
 		});
 	}
@@ -110,7 +109,7 @@ public class MessageEditorActivity extends AsimovActivity {
 		protected void onPostExecute(MessageEditorActivity context, Contact[] result) {
 			progressBar.dismiss();
 			if (!cancelled)
-				context.startActivity(new Intent(context, ContactSelectionActivity.class));
+				context.startActivity(new Intent(context, ContactSelectionActivity.class).putExtra(ContactSelectionActivity.CONTACTS, result));
 		}
 
 		@Override
