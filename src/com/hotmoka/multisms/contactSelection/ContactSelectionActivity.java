@@ -2,13 +2,11 @@ package com.hotmoka.multisms.contactSelection;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
-import com.hotmoka.asimov.app.AsimovActivity;
+import com.hotmoka.asimov.app.AsimovCallableActivity;
 import com.hotmoka.asimov.app.State;
 import com.hotmoka.multisms.R;
 
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
@@ -21,35 +19,16 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-public class ContactSelectionActivity extends AsimovActivity {
-
-	/**
-	 * The token holding the contacts in the intent that started this activity.
-	 */
-
-	public final static String CONTACTS = "contacts";
+public class ContactSelectionActivity extends AsimovCallableActivity<ContactSelectionActivity.Contact[]> {
 
 	@State
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
+	protected void onCreate(Contact[] contacts) {
 		setContentView(R.layout.activity_contact_selection);
 
-		setAdaptor(getContactsFromIntent());
-	}
-
-	private Contact[] getContactsFromIntent() {
-		Set<Contact> contacts = new TreeSet<Contact>();
-		Parcelable[] extra = getIntent().getParcelableArrayExtra(CONTACTS);
-		if (extra != null)
-			for (Parcelable p: extra)
-				if (p instanceof Contact)
-					contacts.add((Contact) p);
-
-		return contacts.toArray(new Contact[contacts.size()]);
+		setAdaptor(contacts);
 	}
 
 	private void setAdaptor(Contact[] contacts) {

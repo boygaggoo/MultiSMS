@@ -14,7 +14,6 @@ import android.provider.ContactsContract;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
 import android.view.View;
@@ -85,6 +84,11 @@ public class MessageEditorActivity extends AsimovActivity {
 		}
 
 		@Override
+		protected void onDetach() {
+			progressBar.dismiss();
+		}
+
+		@Override
 		protected Contact[] run() {
 			contactsCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 			progressBar.setMax(contactsCursor.getCount());
@@ -109,12 +113,7 @@ public class MessageEditorActivity extends AsimovActivity {
 		protected void onPostExecute(MessageEditorActivity context, Contact[] result) {
 			progressBar.dismiss();
 			if (!cancelled)
-				context.startActivity(new Intent(context, ContactSelectionActivity.class).putExtra(ContactSelectionActivity.CONTACTS, result));
-		}
-
-		@Override
-		protected void onDetach() {
-			progressBar.dismiss();
+				context.call(ContactSelectionActivity.class, result);
 		}
 
 		private void addContactsFor(Cursor contactsCursor, Set<Contact> contacts) {
