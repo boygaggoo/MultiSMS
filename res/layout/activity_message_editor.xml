@@ -2,7 +2,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grey"
     tools:context=".EditMessageActivity" >
+
+    <TextView
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/message"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/message"
+        android:layout_margin="4dp"
+        android:background="@color/light_red"
+        android:ems="10"
+        android:text="@string/goal"
+        android:textAlignment="center" />
+
+    <EditText
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/editText1"
+        android:layout_margin="2dp"
+        android:layout_marginTop="25dp"
+        android:ems="10"
+        android:inputType="textCapSentences|textMultiLine|textShortMessage"
+        android:minLines="5" >
+
+        <requestFocus />
+    </EditText>
 
     <Button
         android:id="@+id/sendMessage"
@@ -10,17 +39,25 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/message"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="67dp"
         android:text="@string/send_to" />
 
-    <EditText
-        android:id="@+id/message"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/addName"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        android:minLines="8"
-        android:text="@string/message_hint" />
+        android:layout_alignLeft="@+id/editText1"
+        android:layout_below="@+id/message"
+        android:text="@string/add_name" />
+
+    <Button
+        android:id="@+id/addSurname"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/message"
+        android:text="@string/add_surname" />
 
 </RelativeLayout>

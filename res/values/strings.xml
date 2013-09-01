@@ -12,5 +12,8 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_contacts_fetcher">ContactsFetcherActivity</string>
+    <string name="goal">Send this personalized text message to many contacts:</string>
+    <string name="add_name">Add contact name</string>
+    <string name="add_surname">Add contact surname</string>
 
 </resources>
