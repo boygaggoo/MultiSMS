@@ -18,27 +18,70 @@ import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.EditText;
 
 public class MessageEditorActivity extends AsimovActivity {
+
+	private final static String NAME = "$NAME$";
+	private final static String SURNAME = "$SURNAME$";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		configureUI();
+	}
+
+	private void configureUI() {
 		setContentView(R.layout.activity_message_editor);
 
 		configureSendButton();
+		configureAddNameButton();
+		configureAddSurnameButton();
 	}
 
 	private void configureSendButton() {
-		((Button) findViewById(R.id.sendMessage)).setOnClickListener(new OnClickListener() {
+		findViewById(R.id.sendMessage).setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				submit(new ContactsFetcher(MessageEditorActivity.this));
 			}
 		});
+	}
+
+	private void configureAddNameButton() {
+		findViewById(R.id.addName).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				expandTextWith(NAME);
+			}
+		});
+	}
+
+	private void configureAddSurnameButton() {
+		findViewById(R.id.addSurname).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				expandTextWith(SURNAME);
+			}
+		});
+	}
+
+	private void expandTextWith(String added) {
+		EditText editText = (EditText) findViewById(R.id.message);
+		String originalMessage = editText.getText().toString();
+		String newMessage;
+
+		if (originalMessage.length() == 0 || originalMessage.endsWith(" "))
+			newMessage = originalMessage + added + ' ';
+		else
+			newMessage = originalMessage + " " + added + ' ';
+
+		editText.setText(newMessage);
+		editText.setSelection(newMessage.length());
 	}
 
 	private static class ContactsFetcher extends DetachableHandler<MessageEditorActivity, Integer, Contact[]> {
