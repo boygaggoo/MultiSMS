@@ -132,7 +132,7 @@ public class MessageEditorActivity extends AsimovActivity {
 
 		@Override
 		protected SortedSet<Contact> run() {
-			contactsCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+	        contactsCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 			progressBar.setMax(contactsCursor.getCount());
 			SortedSet<Contact> contacts = new TreeSet<Contact>();
 
@@ -159,11 +159,25 @@ public class MessageEditorActivity extends AsimovActivity {
 		}
 
 		private void addContactsFor(Cursor contactsCursor, Set<Contact> contacts) {
-	    	String contactName = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-			String contactSurname = "unknown";
+			String contactName = null, contactSurname = null;
 	        String contactID = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts._ID));
 
-	    	// iteriamo su tutti i numeri del contatto
+	        // we determine the name and surname of the contact
+	        String structuredNameWhere = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?"; 
+	        String[] structuredNameWhereParams = new String[]{ contactID, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE}; 
+	        Cursor names = contentResolver.query(ContactsContract.Data.CONTENT_URI, null, structuredNameWhere, structuredNameWhereParams, null); 
+
+	        if (names.moveToFirst()) { 
+	            contactName = names.getString(names.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
+	            contactSurname = names.getString(names.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+	        }
+
+	        names.close();
+
+	        if (contactName == null || contactSurname == null)
+	        	return;
+
+	        // we iterate over all phone numbers of the contact
 	    	Cursor numbers = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
 	       		ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[] { contactID }, null);
 
