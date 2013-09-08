@@ -15,5 +15,6 @@
     <string name="hint">Write your message here</string>
     <string name="add_name">Add contact name</string>
     <string name="add_surname">Add contact surname</string>
+    <string name="title_activity_message_confirmation">MessageConfirmationActivity</string>
 
 </resources>

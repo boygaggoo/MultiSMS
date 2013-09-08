@@ -1,13 +1,12 @@
-package com.hotmoka.multisms.messageEditor;
+package com.hotmoka.multisms;
 
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.hotmoka.asimov.app.DetachableHandler;
 import com.hotmoka.asimov.app.AsimovActivity;
 import com.hotmoka.multisms.R;
-import com.hotmoka.multisms.contactSelection.ContactSelectionActivity;
-import com.hotmoka.multisms.contactSelection.ContactSelectionActivity.Contact;
 
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -84,7 +83,7 @@ public class MessageEditorActivity extends AsimovActivity {
 		editText.setSelection(newMessage.length());
 	}
 
-	private static class ContactsFetcher extends DetachableHandler<MessageEditorActivity, Integer, Contact[]> {
+	private static class ContactsFetcher extends DetachableHandler<MessageEditorActivity, Integer, SortedSet<Contact>> {
 
 		private final ContentResolver contentResolver;
 
@@ -132,10 +131,10 @@ public class MessageEditorActivity extends AsimovActivity {
 		}
 
 		@Override
-		protected Contact[] run() {
+		protected SortedSet<Contact> run() {
 			contactsCursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 			progressBar.setMax(contactsCursor.getCount());
-			Set<Contact> contacts = new TreeSet<Contact>();
+			SortedSet<Contact> contacts = new TreeSet<Contact>();
 
 	        while (contactsCursor.moveToNext() && !cancelled) {
 	        	notifyProgress(Integer.valueOf(++progress));
@@ -144,7 +143,7 @@ public class MessageEditorActivity extends AsimovActivity {
 
 	        contactsCursor.close();
 
-	        return contacts.toArray(new Contact[contacts.size()]);
+	        return contacts;
 		}
 
 		@Override
@@ -153,7 +152,7 @@ public class MessageEditorActivity extends AsimovActivity {
 		}
 
 		@Override
-		protected void onPostExecute(MessageEditorActivity context, Contact[] result) {
+		protected void onPostExecute(MessageEditorActivity context, SortedSet<Contact> result) {
 			progressBar.dismiss();
 			if (!cancelled)
 				context.call(ContactSelectionActivity.class, result);

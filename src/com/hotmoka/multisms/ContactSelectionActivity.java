@@ -1,14 +1,13 @@
-package com.hotmoka.multisms.contactSelection;
+package com.hotmoka.multisms;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 
 import com.hotmoka.asimov.app.AsimovCallableActivity;
 import com.hotmoka.asimov.app.State;
 import com.hotmoka.multisms.R;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -19,20 +18,22 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-public class ContactSelectionActivity extends AsimovCallableActivity<ContactSelectionActivity.Contact[]> {
+public class ContactSelectionActivity extends AsimovCallableActivity<SortedSet<Contact>> {
 
 	@State
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
 
 	@Override
-	protected void onCreate(Contact[] contacts) {
+	protected void onCreate(SortedSet<Contact> contacts) {
 		setContentView(R.layout.activity_contact_selection);
 
 		setAdaptor(contacts);
 	}
 
-	private void setAdaptor(Contact[] contacts) {
-		ArrayAdapter<Contact> adapter = new ArrayAdapter<Contact>(this, R.layout.single_contact, contacts) {
+	private void setAdaptor(SortedSet<Contact> contacts) {
+		ArrayAdapter<Contact> adapter = new ArrayAdapter<Contact>(this, R.layout.single_contact, contacts.toArray(new Contact[contacts.size()])) {
+
+			private final Button sendButton = (Button) findViewById(R.id.send);
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -69,9 +70,19 @@ public class ContactSelectionActivity extends AsimovCallableActivity<ContactSele
 						else
 							selectedContacts.remove(contact);
 
-						((Button) findViewById(R.id.send)).setEnabled(!selectedContacts.isEmpty());
+						if (selectedContacts.isEmpty()) {
+							sendButton.setEnabled(false);
+							sendButton.setText("Send to the selected contacts");
+						}
+						else if (selectedContacts.size() == 1) {
+							sendButton.setEnabled(true);
+							sendButton.setText("Send to the selected contact");
+						}
+						else {
+							sendButton.setEnabled(true);
+							sendButton.setText("Send to the selected " + selectedContacts.size() + " contacts");
+						}
 					}
-					
 				};
 
 				contactText.setOnClickListener(listener);
@@ -82,81 +93,5 @@ public class ContactSelectionActivity extends AsimovCallableActivity<ContactSele
 		};
 
 		((ListView) findViewById(R.id.list_of_contacts)).setAdapter(adapter);
-	}
-
-	public static class Contact implements Comparable<Contact>, Parcelable {
-		private final boolean isMobile;
-		private final String name;
-		private final String phone;
-	
-		public Contact(boolean isMobile, String name, String phone) {
-			this.isMobile = isMobile;
-			this.name = name;
-			this.phone = phone;
-		}
-
-		private Contact(Parcel parcel) {
-			this.isMobile = parcel.readInt() == 1 ? true : false;
-			this.name = parcel.readString();
-			this.phone = parcel.readString();
-		}
-
-		@Override
-		public int compareTo(Contact another) {
-			int comp = name.compareTo(another.name);
-			if (comp != 0)
-				return comp;
-	
-			if (isMobile != another.isMobile)
-				return isMobile ? -1 : 1;
-	
-			return phone.compareTo(another.phone);
-		}
-	
-		@Override
-		public boolean equals(Object other) {
-			if (other instanceof Contact) {
-				Contact otherAsContact = (Contact) other;
-	
-				return isMobile == otherAsContact.isMobile && name.equals(otherAsContact.name) && phone.equals(otherAsContact.phone);
-			}
-			else
-				return false;
-		}
-	
-		@Override
-		public int hashCode() {
-			return name.hashCode();
-		}
-
-		@Override
-		public String toString() {
-			return "[" + (isMobile ? "Mobile" : "Landline") + "] " + name + " " + phone; 
-		}
-
-		@Override
-		public int describeContents() {
-			return 0;
-		}
-
-		@Override
-		public void writeToParcel(Parcel parcel, int flags) {
-			parcel.writeInt(isMobile ? 1 : 0);
-			parcel.writeString(name);
-			parcel.writeString(phone);
-		}
-
-		public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
-
-			@Override
-			public Contact createFromParcel(Parcel parcel) {
-				return new Contact(parcel);
-			}
-
-			@Override
-			public Contact[] newArray(int size) {
-				return new Contact[size];
-			}
-		};
 	}
 }
