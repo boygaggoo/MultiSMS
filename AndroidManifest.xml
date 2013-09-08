@@ -28,10 +28,5 @@
             android:name="com.hotmoka.multisms.ContactSelectionActivity"
             android:launchMode="standard" >
         </activity>
-        <activity
-            android:name="com.hotmoka.multisms.MessageConfirmationActivity"
-            android:label="@string/title_activity_message_confirmation" >
-        </activity>
     </application>
-
 </manifest>

@@ -8,6 +8,8 @@ import com.hotmoka.asimov.app.AsimovCallableActivity;
 import com.hotmoka.asimov.app.State;
 import com.hotmoka.multisms.R;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -28,6 +30,52 @@ public class ContactSelectionActivity extends AsimovCallableActivity<SortedSet<C
 		setContentView(R.layout.activity_contact_selection);
 
 		setAdaptor(contacts);
+		configureSendButton();
+	}
+
+	private void configureSendButton() {
+		findViewById(R.id.send).setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View button) {
+				new AlertDialog.Builder(ContactSelectionActivity.this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.confirmation)
+					.setMessage(mkConfirmationMessage())
+					.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+
+			            @Override
+			            public void onClick(DialogInterface dialog, int which) {
+			            }
+					})
+					.setNegativeButton(R.string.cancel, null)
+					.show();
+			}
+
+			private CharSequence mkConfirmationMessage() {
+				Contact firstRecipient = getFirstRecipient();
+
+				String message = "You are going to send " + selectedContacts.size() + " personalized SMS.";
+				message += " For instance, the following message:\n\n";
+				message += "\"" + personalizeMessageFor(firstRecipient) + "\"";
+				message += "\n\nis going to be sent to " + firstRecipient.name + " " + firstRecipient.surname;
+
+				return message;
+			}
+
+			private Contact getFirstRecipient() {
+				Contact result = null;
+				for (Contact contact: selectedContacts)
+					if (result == null || contact.compareTo(result) < 0)
+						result = contact;
+
+				return result;
+			}
+
+			private String personalizeMessageFor(Contact recipient) {
+				return "message";
+			}
+		});
 	}
 
 	private void setAdaptor(SortedSet<Contact> contacts) {
@@ -49,7 +97,7 @@ public class ContactSelectionActivity extends AsimovCallableActivity<SortedSet<C
 
 			private void initViewFromContact(View view, final Contact contact) {
 				TextView contactText = (TextView) view.findViewById(R.id.contact_name);
-				contactText.setText(contact.name);
+				contactText.setText(contact.name + " " + contact.surname);
 				TextView contactPhone = (TextView) view.findViewById(R.id.contact_phone);
 				contactPhone.setText(contact.phone);
 				ImageView phoneImage = (ImageView) view.findViewById(R.id.phone_type);

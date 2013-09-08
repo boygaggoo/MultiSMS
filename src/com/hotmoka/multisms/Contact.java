@@ -6,23 +6,30 @@ import android.os.Parcelable;
 public class Contact implements Comparable<Contact>, Parcelable {
 	final boolean isMobile;
 	final String name;
+	final String surname;
 	final String phone;
 
-	public Contact(boolean isMobile, String name, String phone) {
+	public Contact(boolean isMobile, String name, String surname, String phone) {
 		this.isMobile = isMobile;
 		this.name = name;
+		this.surname = surname;
 		this.phone = phone;
 	}
 
 	private Contact(Parcel parcel) {
 		this.isMobile = parcel.readInt() == 1 ? true : false;
 		this.name = parcel.readString();
+		this.surname = parcel.readString();
 		this.phone = parcel.readString();
 	}
 
 	@Override
 	public int compareTo(Contact another) {
 		int comp = name.compareTo(another.name);
+		if (comp != 0)
+			return comp;
+
+		comp = surname.compareTo(another.surname);
 		if (comp != 0)
 			return comp;
 
@@ -37,7 +44,8 @@ public class Contact implements Comparable<Contact>, Parcelable {
 		if (other instanceof Contact) {
 			Contact otherAsContact = (Contact) other;
 
-			return isMobile == otherAsContact.isMobile && name.equals(otherAsContact.name) && phone.equals(otherAsContact.phone);
+			return isMobile == otherAsContact.isMobile && name.equals(otherAsContact.name)
+				&& surname.equals(otherAsContact.surname) && phone.equals(otherAsContact.phone);
 		}
 		else
 			return false;
@@ -50,7 +58,7 @@ public class Contact implements Comparable<Contact>, Parcelable {
 
 	@Override
 	public String toString() {
-		return "[" + (isMobile ? "Mobile" : "Landline") + "] " + name + " " + phone; 
+		return "[" + (isMobile ? "Mobile" : "Landline") + "] " + name + " " + surname + " " + phone; 
 	}
 
 	@Override
@@ -62,6 +70,7 @@ public class Contact implements Comparable<Contact>, Parcelable {
 	public void writeToParcel(Parcel parcel, int flags) {
 		parcel.writeInt(isMobile ? 1 : 0);
 		parcel.writeString(name);
+		parcel.writeString(surname);
 		parcel.writeString(phone);
 	}
 

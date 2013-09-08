@@ -159,7 +159,8 @@ public class MessageEditorActivity extends AsimovActivity {
 		}
 
 		private void addContactsFor(Cursor contactsCursor, Set<Contact> contacts) {
-			String contactName = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+	    	String contactName = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+			String contactSurname = "unknown";
 	        String contactID = contactsCursor.getString(contactsCursor.getColumnIndex(ContactsContract.Contacts._ID));
 
 	    	// iteriamo su tutti i numeri del contatto
@@ -170,7 +171,7 @@ public class MessageEditorActivity extends AsimovActivity {
 	            while (numbers.moveToNext()) {
 	            	boolean isMobile = numbers.getInt(numbers.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)) == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE;
 	            	String contactPhone = numbers.getString(numbers.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-	            	contacts.add(new Contact(isMobile, contactName, contactPhone));
+	            	contacts.add(new Contact(isMobile, contactName, contactSurname, contactPhone));
 	            }
 
 	    	numbers.close();

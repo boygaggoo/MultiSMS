@@ -16,5 +16,8 @@
     <string name="add_name">Add contact name</string>
     <string name="add_surname">Add contact surname</string>
     <string name="title_activity_message_confirmation">MessageConfirmationActivity</string>
-
+    <string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+	<string name="confirmation">Confirm your action</string>
+	<string name="confirmation_message">You are going to send bla bla bla</string>
 </resources>
