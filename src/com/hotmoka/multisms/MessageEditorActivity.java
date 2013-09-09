@@ -6,6 +6,7 @@ import java.util.TreeSet;
 
 import com.hotmoka.asimov.app.DetachableHandler;
 import com.hotmoka.asimov.app.AsimovActivity;
+import com.hotmoka.asimov.parcelable.PairParcelable;
 import com.hotmoka.multisms.R;
 
 import android.os.Bundle;
@@ -21,8 +22,8 @@ import android.widget.EditText;
 
 public class MessageEditorActivity extends AsimovActivity {
 
-	private final static String NAME = "$NAME$";
-	private final static String SURNAME = "$SURNAME$";
+	final static String NAME = "$NAME$";
+	final static String SURNAME = "$SURNAME$";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -154,8 +155,10 @@ public class MessageEditorActivity extends AsimovActivity {
 		@Override
 		protected void onPostExecute(MessageEditorActivity context, SortedSet<Contact> result) {
 			progressBar.dismiss();
-			if (!cancelled)
-				context.call(ContactSelectionActivity.class, result);
+			if (!cancelled) {
+				String message = ((EditText) context.findViewById(R.id.message)).getText().toString();
+				context.call(ContactSelectionActivity.class, new PairParcelable<SortedSet<Contact>, String>(result, message));
+			}
 		}
 
 		private void addContactsFor(Cursor contactsCursor, Set<Contact> contacts) {

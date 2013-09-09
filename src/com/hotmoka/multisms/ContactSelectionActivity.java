@@ -6,6 +6,8 @@ import java.util.SortedSet;
 
 import com.hotmoka.asimov.app.AsimovCallableActivity;
 import com.hotmoka.asimov.app.State;
+import com.hotmoka.asimov.parcelable.PairParcelable;
+
 import com.hotmoka.multisms.R;
 
 import android.app.AlertDialog;
@@ -20,21 +22,28 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-public class ContactSelectionActivity extends AsimovCallableActivity<SortedSet<Contact>> {
+public class ContactSelectionActivity extends AsimovCallableActivity<PairParcelable<SortedSet<Contact>, String>> {
 
 	@State
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
 
-	@Override
-	protected void onCreate(SortedSet<Contact> contacts) {
-		setContentView(R.layout.activity_contact_selection);
+	private Button sendButton;
 
-		setAdaptor(contacts);
+	private String message;
+
+	@Override
+	protected void onCreate(PairParcelable<SortedSet<Contact>, String> contactsAndMessage) {
+		setContentView(R.layout.activity_contact_selection);
+	
+		this.message = contactsAndMessage.getSecond();
+
 		configureSendButton();
+		setAdaptor(contactsAndMessage.getFirst());
 	}
 
 	private void configureSendButton() {
-		findViewById(R.id.send).setOnClickListener(new OnClickListener() {
+		sendButton = (Button) findViewById(R.id.send);
+		sendButton.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View button) {
@@ -73,15 +82,31 @@ public class ContactSelectionActivity extends AsimovCallableActivity<SortedSet<C
 			}
 
 			private String personalizeMessageFor(Contact recipient) {
-				return "message";
+				return message.replace(MessageEditorActivity.NAME, recipient.name)
+						.replace(MessageEditorActivity.SURNAME, recipient.surname);
 			}
 		});
+
+		updateSendButton();
+	}
+
+	private void updateSendButton() {
+		if (selectedContacts.isEmpty()) {
+			sendButton.setEnabled(false);
+			sendButton.setText("Send to the selected contacts");
+		}
+		else if (selectedContacts.size() == 1) {
+			sendButton.setEnabled(true);
+			sendButton.setText("Send to the selected contact");
+		}
+		else {
+			sendButton.setEnabled(true);
+			sendButton.setText("Send to the selected " + selectedContacts.size() + " contacts");
+		}
 	}
 
 	private void setAdaptor(SortedSet<Contact> contacts) {
 		ArrayAdapter<Contact> adapter = new ArrayAdapter<Contact>(this, R.layout.single_contact, contacts.toArray(new Contact[contacts.size()])) {
-
-			private final Button sendButton = (Button) findViewById(R.id.send);
 
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -118,18 +143,7 @@ public class ContactSelectionActivity extends AsimovCallableActivity<SortedSet<C
 						else
 							selectedContacts.remove(contact);
 
-						if (selectedContacts.isEmpty()) {
-							sendButton.setEnabled(false);
-							sendButton.setText("Send to the selected contacts");
-						}
-						else if (selectedContacts.size() == 1) {
-							sendButton.setEnabled(true);
-							sendButton.setText("Send to the selected contact");
-						}
-						else {
-							sendButton.setEnabled(true);
-							sendButton.setText("Send to the selected " + selectedContacts.size() + " contacts");
-						}
+						updateSendButton();
 					}
 				};
 
