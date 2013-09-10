@@ -9,6 +9,7 @@ import com.hotmoka.asimov.app.State;
 import com.hotmoka.asimov.parcelable.PairParcelable;
 
 import com.hotmoka.multisms.R;
+import com.hotmoka.multisms.views.MessageEditText.Message;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,17 +23,15 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-public class ContactSelectionActivity extends AsimovCallableActivity<PairParcelable<SortedSet<Contact>, String>> {
+public class ContactSelectionActivity extends AsimovCallableActivity<PairParcelable<SortedSet<Contact>, Message>> {
 
 	@State
 	private final Set<Contact> selectedContacts = new HashSet<Contact>();
 
-	private Button sendButton;
-
-	private String message;
+	private Message message;
 
 	@Override
-	protected void onCreate(PairParcelable<SortedSet<Contact>, String> contactsAndMessage) {
+	protected void onCreate(PairParcelable<SortedSet<Contact>, Message> contactsAndMessage) {
 		setContentView(R.layout.activity_contact_selection);
 	
 		this.message = contactsAndMessage.getSecond();
@@ -42,8 +41,7 @@ public class ContactSelectionActivity extends AsimovCallableActivity<PairParcela
 	}
 
 	private void configureSendButton() {
-		sendButton = (Button) findViewById(R.id.send);
-		sendButton.setOnClickListener(new OnClickListener() {
+		findViewById(R.id.send).setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View button) {
@@ -64,12 +62,12 @@ public class ContactSelectionActivity extends AsimovCallableActivity<PairParcela
 			private CharSequence mkConfirmationMessage() {
 				Contact firstRecipient = getFirstRecipient();
 
-				String message = "You are going to send " + selectedContacts.size() + " personalized SMS.";
-				message += " For instance, the following message:\n\n";
-				message += "\"" + personalizeMessageFor(firstRecipient) + "\"";
-				message += "\n\nis going to be sent to " + firstRecipient.name + " " + firstRecipient.surname;
+				String msg = "You are going to send " + selectedContacts.size() + " personalized SMS.";
+				msg += " For instance, the following message:\n\n";
+				msg += "\"" + message.personalizeFor(firstRecipient) + "\"";
+				msg += "\n\nis going to be sent to " + firstRecipient.name + " " + firstRecipient.surname;
 
-				return message;
+				return msg;
 			}
 
 			private Contact getFirstRecipient() {
@@ -80,17 +78,14 @@ public class ContactSelectionActivity extends AsimovCallableActivity<PairParcela
 
 				return result;
 			}
-
-			private String personalizeMessageFor(Contact recipient) {
-				return message.replace(MessageEditorActivity.NAME, recipient.name)
-						.replace(MessageEditorActivity.SURNAME, recipient.surname);
-			}
 		});
 
 		updateSendButton();
 	}
 
 	private void updateSendButton() {
+		Button sendButton = (Button) findViewById(R.id.send);
+
 		if (selectedContacts.isEmpty()) {
 			sendButton.setEnabled(false);
 			sendButton.setText("Send to the selected contacts");

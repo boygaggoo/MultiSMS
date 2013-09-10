@@ -8,6 +8,8 @@ import com.hotmoka.asimov.app.DetachableHandler;
 import com.hotmoka.asimov.app.AsimovActivity;
 import com.hotmoka.asimov.parcelable.PairParcelable;
 import com.hotmoka.multisms.R;
+import com.hotmoka.multisms.views.MessageEditText;
+import com.hotmoka.multisms.views.MessageEditText.Message;
 
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -18,12 +20,8 @@ import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.EditText;
 
 public class MessageEditorActivity extends AsimovActivity {
-
-	final static String NAME = "$NAME$";
-	final static String SURNAME = "$SURNAME$";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +53,7 @@ public class MessageEditorActivity extends AsimovActivity {
 
 			@Override
 			public void onClick(View v) {
-				expandTextWith(NAME);
+				((MessageEditText) findViewById(R.id.message)).addName();
 			}
 		});
 	}
@@ -65,23 +63,9 @@ public class MessageEditorActivity extends AsimovActivity {
 
 			@Override
 			public void onClick(View v) {
-				expandTextWith(SURNAME);
+				((MessageEditText) findViewById(R.id.message)).addSurname();
 			}
 		});
-	}
-
-	private void expandTextWith(String added) {
-		EditText editText = (EditText) findViewById(R.id.message);
-		String originalMessage = editText.getText().toString();
-		String newMessage;
-
-		if (originalMessage.length() == 0 || originalMessage.endsWith(" "))
-			newMessage = originalMessage + added + ' ';
-		else
-			newMessage = originalMessage + " " + added + ' ';
-
-		editText.setText(newMessage);
-		editText.setSelection(newMessage.length());
 	}
 
 	private static class ContactsFetcher extends DetachableHandler<MessageEditorActivity, Integer, SortedSet<Contact>> {
@@ -110,9 +94,10 @@ public class MessageEditorActivity extends AsimovActivity {
 			progressBar.setIndeterminate(false);
 			progressBar.setMessage("Loading contacts");
 			progressBar.setProgress(progress);
+
 			if (contactsCursor != null)
 				progressBar.setMax(contactsCursor.getCount());
-			//progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progress_bar));
+
 			progressBar.setOnCancelListener(new OnCancelListener() {
 
 				@Override
@@ -156,8 +141,8 @@ public class MessageEditorActivity extends AsimovActivity {
 		protected void onPostExecute(MessageEditorActivity context, SortedSet<Contact> result) {
 			progressBar.dismiss();
 			if (!cancelled) {
-				String message = ((EditText) context.findViewById(R.id.message)).getText().toString();
-				context.call(ContactSelectionActivity.class, new PairParcelable<SortedSet<Contact>, String>(result, message));
+				Message message = ((MessageEditText) context.findViewById(R.id.message)).getMessage();
+				context.call(ContactSelectionActivity.class, new PairParcelable<SortedSet<Contact>, Message>(result, message));
 			}
 		}
 

@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Contact implements Comparable<Contact>, Parcelable {
-	final boolean isMobile;
-	final String name;
-	final String surname;
-	final String phone;
+	public final boolean isMobile;
+	public final String name;
+	public final String surname;
+	public final String phone;
 
 	public Contact(boolean isMobile, String name, String surname, String phone) {
 		this.isMobile = isMobile;
